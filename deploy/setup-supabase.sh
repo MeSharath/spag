@@ -33,6 +33,21 @@ error() {
     exit 1
 }
 
+# Prompt for Supabase credentials
+prompt_credentials() {
+    log "Please provide your Supabase credentials:"
+    
+    echo -n "Supabase Password: "
+    read -s SUPABASE_PASSWORD
+    echo
+    
+    if [ -z "$SUPABASE_PASSWORD" ]; then
+        error "Supabase password is required!"
+    fi
+    
+    log "Credentials received securely"
+}
+
 # Create secure environment file
 create_env_file() {
     log "Creating secure environment configuration..."
@@ -40,8 +55,8 @@ create_env_file() {
     # Create backend directory if it doesn't exist
     mkdir -p "$APP_DIR/backend"
     
-    # Create .env file with your Supabase credentials
-    cat > "$ENV_FILE" << 'EOF'
+    # Create .env file with provided credentials
+    cat > "$ENV_FILE" << EOF
 # =============================================================================
 # Studio Finder Backend - Environment Variables
 # =============================================================================
@@ -52,10 +67,10 @@ create_env_file() {
 # Spring Boot Configuration
 SPRING_PROFILES_ACTIVE=prod
 
-# Database Configuration (Supabase)
+# Database Configuration (Supabase) - Will be prompted during setup
 DATABASE_URL=jdbc:postgresql://db.schsrcjdukkduduueytz.supabase.co:5432/postgres
 DATABASE_USERNAME=postgres
-DATABASE_PASSWORD=Ghazi@1234567890
+DATABASE_PASSWORD=$SUPABASE_PASSWORD
 
 # Server Configuration
 SERVER_PORT=8080
@@ -93,7 +108,7 @@ test_connection() {
     fi
     
     # Test connection
-    export PGPASSWORD="Ghazi@1234567890"
+    export PGPASSWORD="$SUPABASE_PASSWORD"
     
     if psql -h "db.schsrcjdukkduduueytz.supabase.co" -p 5432 -U postgres -d postgres \
         -c "SELECT version();" > /dev/null 2>&1; then
@@ -117,7 +132,7 @@ test_connection() {
 create_schema() {
     log "Creating database schema..."
     
-    export PGPASSWORD="Ghazi@1234567890"
+    export PGPASSWORD="$SUPABASE_PASSWORD"
     
     # Create studios table
     psql -h "db.schsrcjdukkduduueytz.supabase.co" -p 5432 -U postgres -d postgres << 'EOF'
@@ -228,6 +243,7 @@ show_summary() {
 main() {
     log "Setting up Supabase configuration for Studio Finder..."
     
+    prompt_credentials
     create_env_file
     test_connection
     create_schema

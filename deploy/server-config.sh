@@ -61,7 +61,7 @@ SPRING_PROFILES_ACTIVE=prod
 # Database Configuration (Supabase)
 DATABASE_URL=jdbc:postgresql://db.schsrcjdukkduduueytz.supabase.co:5432/postgres
 DATABASE_USERNAME=postgres
-DATABASE_PASSWORD=Ghazi@1234567890
+DATABASE_PASSWORD=YOUR_SUPABASE_PASSWORD
 
 # Server Configuration
 SERVER_PORT=8080
