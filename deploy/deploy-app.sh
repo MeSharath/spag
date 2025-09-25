@@ -61,10 +61,19 @@ if [ ! -d "$APP_DIR" ]; then
     error "Application directory $APP_DIR does not exist. Please run setup-server.sh first."
 fi
 
-# Get Supabase credentials
-echo -e "${BLUE}Please provide your Supabase database credentials:${NC}"
-SUPABASE_HOST=$(prompt "Supabase Host (e.g., db.xxxxx.supabase.co)")
-SUPABASE_PASSWORD=$(prompt_password "Supabase Password")
+# Check if Supabase is already configured
+if [ -f "$APP_DIR/backend/.env" ]; then
+    log "Found existing Supabase configuration"
+    source "$APP_DIR/backend/.env"
+    SUPABASE_HOST=$(echo "$DATABASE_URL" | sed -n 's/.*:\/\/\([^:]*\):.*/\1/p')
+    SUPABASE_PASSWORD="$DATABASE_PASSWORD"
+else
+    # Get Supabase credentials
+    echo -e "${BLUE}Please provide your Supabase database credentials:${NC}"
+    SUPABASE_HOST=$(prompt "Supabase Host (e.g., db.xxxxx.supabase.co)")
+    SUPABASE_PASSWORD=$(prompt_password "Supabase Password")
+fi
+
 SERVER_IP=$(prompt "Your Oracle Server IP Address")
 DOMAIN_NAME=$(prompt "Domain name (optional, press Enter to skip)")
 
