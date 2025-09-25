@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database (for local development)
+  postgres:
+    image: postgres:15-alpine
+    container_name: studio-postgres
+    environment:
+      POSTGRES_DB: studio_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - studio-network
+
+  # Spring Boot Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: studio-backend
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DATABASE_URL: jdbc:postgresql://postgres:5432/studio_db
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: password
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - studio-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  studio-network:
+    driver: bridge
